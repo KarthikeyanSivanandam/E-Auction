@@ -27,7 +27,8 @@ namespace SellerAPI
                           logging.ClearProviders();
                           logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
                       }).UseNLog();
-                    // NLog: Setup NLog for Dependency injection
-                });
+                    // NLog: Setup NLog for Dependency injection             
+                }                
+                ); 
     }
 }

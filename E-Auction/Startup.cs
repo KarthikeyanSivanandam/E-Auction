@@ -18,8 +18,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using MediatR;
+using System.Reflection;
+using Confluent.Kafka;
+using E_Auction.Model;
 
- namespace BuyerAPI
+namespace BuyerAPI
 
 {
     public class Startup
@@ -35,7 +39,7 @@ using System.Threading.Tasks;
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddMediatR(Assembly.GetExecutingAssembly());
             services.AddControllers();            
             //  services.AddTokenAuthentication(Configuration);
             services.AddApiVersioning(x =>
@@ -49,8 +53,8 @@ using System.Threading.Tasks;
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "BuyerAPI", Version = "v1" });
             });
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            services.AddScoped<IBuyerService, BuyerService>();
+            //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            //services.AddScoped<IBuyerService, BuyerService>();
 
             //Fluent Validation
             services.AddMvc(options =>
@@ -63,6 +67,14 @@ using System.Threading.Tasks;
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
+
+            //Kafka
+            var producerConfig = new ProducerConfig();
+            Configuration.Bind("Producers", producerConfig);
+            services.AddSingleton<ProducerConfig>(producerConfig);
+
+            services.Configure<BuyerMongoDBConfig>(
+            Configuration.GetSection("BuyerDatabase"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -19,6 +19,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Confluent.Kafka;
+using SellerAPI.Data.Contract;
+using SellerAPI.Data;
+using SellerAPI.Data.Models;
 
 namespace SellerAPI
 {
@@ -77,6 +81,7 @@ namespace SellerAPI
         });
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddScoped<ISellerService, SellerService>();
+            services.AddScoped<ISellerDataService, SellerDataService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();            
 
             //Fluent Validation
@@ -90,6 +95,17 @@ namespace SellerAPI
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
+
+            //Kafka
+            var producerConfig = new ProducerConfig();
+            Configuration.Bind("Producers", producerConfig);
+            services.AddSingleton<ProducerConfig>(producerConfig);
+
+            services.Configure<SellerMongoDBConfig>(
+            Configuration.GetSection("SellerDatabase"));
+
+            services.Configure<BuyerMongoDBConfig>(
+          Configuration.GetSection("BuyerDatabase"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
